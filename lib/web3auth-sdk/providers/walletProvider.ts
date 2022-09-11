@@ -1,4 +1,4 @@
-import { Network } from '../types'
+import { Network } from 'lib/types'
 import { InfuraProjectId } from '../constants'
 import { IWalletProvider } from '../types'
 

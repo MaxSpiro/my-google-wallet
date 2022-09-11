@@ -1,17 +1,23 @@
 import { Amount, Asset } from 'lib/entities'
+import { Network } from 'lib/types'
+import { rehydrate } from 'overmind'
 import { Context } from '.'
+import { state } from './swap'
 
-export const loadAssetPrices = async ({ effects, state }: Context, assets: Asset[]) => {
+export const loadAssetPrices = async (
+  { effects, state }: Context,
+  assets: Asset[],
+) => {
   state.assetPricesInUsd = JSON.parse(
     (await effects.api.loadAssetPrices(assets)).data,
   )
 }
 
-export const loadSupportedAssets = async({effects, state}: Context) => {
+export const loadSupportedAssets = async ({ effects, state }: Context) => {
   const supportedAssets = effects.api.loadSupportedAssets()
   state.supportedAssets = supportedAssets
-  
 }
+
 
 export const getAssetPriceInUsd = (
   { state }: Context,
@@ -31,6 +37,9 @@ export const onInitializeOvermind = async ({
 }: Context) => {
   await actions.loadSupportedAssets()
   await actions.loadAssetPrices(state.supportedAssets)
-  console.log('finished initializing')
   state.appLoading = false
+}
+
+export const changePage = ({ state }: Context, mutations: any) => {
+  rehydrate(state, mutations || [])
 }

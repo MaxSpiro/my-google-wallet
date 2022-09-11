@@ -1,6 +1,6 @@
-import { IWallet, Network, UserInfo, WalletOption } from './types'
+import { IWallet, Network, TxParams, WalletOption } from '../types'
+import { UserInfo } from './types'
 import { Amount, Asset } from '../entities'
-import { TxParams } from './types'
 import { web3AuthApiKey } from '../config'
 import { getWalletProvider } from './providers/walletProvider'
 import { IWalletProvider } from './types'
@@ -41,6 +41,10 @@ export class Web3AuthClient implements IWallet {
     })
 
     this.web3auth = web3auth.configureAdapter(openloginAdapter)
+  }
+
+  setNetwork = (network: Network) => {
+    this.network = network
   }
 
   async connect(chains: string[]): Promise<void> {

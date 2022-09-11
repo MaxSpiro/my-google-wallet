@@ -20,6 +20,7 @@ export const handleConnectGoogle = async ({
   state.wallet.wallet = web3auth
   state.wallet.userInfo = web3auth.userInfo
 }
+
 export const handleDisconnect = async ({
   state,
   effects,
@@ -47,13 +48,12 @@ export const getMaxBalance = (
 }
 
 export const getAddressByChain = ({ state }: Context, chain: string) => {
-  return state.wallet.wallet?.getAddress(chain)
+  return state.wallet.wallet?.getAddress(chain) ?? ''
 }
 
 export const verifyAddress = async (
   { state }: Context,
-  address: string,
-  chain: string,
+  { address, chain }: { address: string; chain: string },
 ) => {
   return state.wallet.wallet?.verifyAddress(address, chain)
 }

@@ -24,7 +24,7 @@ export default async function handler(
   const response = await axios.get(
     `${
       process.env.CMC_BASEURL
-    }/v2/cryptocurrency/quotes/latest?symbol=${symbols.toUpperCase()}`,
+    }/cryptocurrency/quotes/latest?symbol=${symbols.toUpperCase()}`,
     {
       headers: {
         'X-CMC_PRO_API_KEY': process.env.CMC_APIKEY ?? '',
@@ -34,7 +34,6 @@ export default async function handler(
     },
   )
   for (const symbol of symbols.split(',')) {
-    console.log(response.data.data[symbol])
     prices[symbol] =
       response.data.data[symbol]?.[0]?.quote?.USD?.price?.toString()
   }

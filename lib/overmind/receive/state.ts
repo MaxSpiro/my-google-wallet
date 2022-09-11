@@ -1,15 +1,15 @@
 import { Amount, Asset } from 'lib/entities'
+import { derived } from 'overmind'
 
 type State = {
-  asset: Asset
-  balance: Amount
-  balanceInUsd: string
-  address: string
+  selectedAssetId: string
+  selectedAsset: Asset
 }
 
 export const state: State = {
-  asset: Asset.getNativeAsset('BTC'),
-  balance: Amount.fromAssetAmount(0, 8),
-  balanceInUsd: '0',
-  address: '',
+  selectedAssetId: Asset.getNativeAsset('BTC').toString(),
+  selectedAsset: derived(
+    (state: State) =>
+      Asset.fromAssetId(state.selectedAssetId) ?? Asset.getNativeAsset('BTC'),
+  ),
 }

@@ -1,23 +1,55 @@
 import Image from 'next/image'
 import { AssetType, SelectAssetModal } from 'components/SelectAssetModal'
 import { useActions, useAppState } from 'lib/overmind'
+import { useState } from 'react'
+import { Amount } from 'lib/entities'
 
 export function Send() {
   const {
-    send: {
-      rawValue,
-      asset,
-      amountInUsd,
-      recipient,
-      fee,
-      feeInUsd,
-      isFormValid,
-      isFormComplete,
-    },
+    send: { amount, selectedAsset, recipient, fee, isFormComplete },
   } = useAppState()
   const {
-    send: { handleChange, handleSubmit, setMaxBalance },
+    send: { handleSubmit, setAmount, setRecipient },
+    wallet: { getMaxBalance },
+    getAssetPriceInUsd,
   } = useActions()
+
+  const feeInUsd = getAssetPriceInUsd({ asset: selectedAsset, amount: fee })
+
+  const [rawValue, setRawValue] = useState('')
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.name === 'recipient') {
+      setRecipient(event.target.value)
+    }
+    if (event.target.name === 'value') {
+      const newValue = event.target.value
+      if (newValue === '.') {
+        setRawValue('0.')
+        return
+      }
+      if (/^0[^.].*/.test(newValue)) {
+        setRawValue(newValue.substring(1))
+        return
+      }
+      if (/^\d*\.?\d*$/.test(newValue)) {
+        setRawValue(event.target.value)
+        setAmount(
+          Amount.fromAssetAmount(event.target.value, selectedAsset.decimal),
+        )
+      }
+    }
+  }
+
+  const setMaxBalance = () => {
+    setAmount(getMaxBalance(selectedAsset))
+    setRawValue(getMaxBalance(selectedAsset).assetAmount.toNumber().toString())
+  }
+
+  const amountInUsd =
+    rawValue === '0' || !rawValue
+      ? '0'
+      : getAssetPriceInUsd({ asset: selectedAsset, amount })
 
   const ConfirmSend = () => {
     return (
@@ -25,22 +57,18 @@ export function Send() {
         <div>
           <h1 className='text-2xl'>Confirm Send:</h1>
           <p>
-            Sending {Number(rawValue)} {asset.symbol} (
+            Sending {Number(rawValue)} {selectedAsset.symbol} (
             <span className='text-primary-content'>${amountInUsd}</span>) to{' '}
             {recipient}
           </p>
           <p>
             Estimated fee: {fee.assetAmount.toNumber().toFixed(4)}{' '}
-            {asset.symbol} (
+            {selectedAsset.symbol} (
             <span className='text-primary-content'>${feeInUsd}</span>)
           </p>
         </div>
-        <button
-          disabled={!isFormValid}
-          onClick={handleSubmit}
-          className='btn btn-secondary'
-        >
-          Send
+        <button onClick={handleSubmit} className='btn btn-secondary'>
+          Preview Transaction
         </button>
       </div>
     )
@@ -55,7 +83,7 @@ export function Send() {
             href='#selectSendAssetModal'
             className='btn border-primary text-xl cursor-pointer flex items-center gap-2'
           >
-            <span className='font-semibold'>{asset.symbol} </span>
+            <span className='font-semibold'>{selectedAsset.symbol} </span>
             <Image
               src='/arrow-down.svg'
               alt='arrow down'

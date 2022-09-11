@@ -2,7 +2,7 @@ import { Sha256, Secp256k1 } from '@cosmjs/crypto'
 import { DirectSecp256k1Wallet } from '@cosmjs/proto-signing'
 import { SigningStargateClient } from '@cosmjs/stargate'
 import { Amount, Asset } from '../../entities'
-import { TxParams, Network } from '../types'
+import { TxParams, Network } from 'lib/types'
 
 import { IWalletProvider } from '../types'
 

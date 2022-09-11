@@ -1,5 +1,5 @@
 import { Amount, Asset } from '../../entities'
-import { TxParams, Network } from '../types'
+import { TxParams, Network } from 'lib/types'
 import Web3 from 'web3'
 import { Account } from 'web3-core'
 import { AbiItem } from 'web3-utils'

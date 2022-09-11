@@ -2,13 +2,23 @@ import { Address } from 'components'
 import QRCode from 'react-qr-code'
 import Image from 'next/image'
 import { AssetType, SelectAssetModal } from 'components/SelectAssetModal'
-import { useAppState } from 'lib/overmind'
+import { useActions, useAppState } from 'lib/overmind'
 
 export function Receive() {
   const {
     wallet: { isConnected },
+    receive: { selectedAsset },
   } = useAppState()
-  const { asset, address, balance, balanceInUsd } = useAppState().receive
+  const {
+    getAssetPriceInUsd,
+    wallet: { getAddressByChain, getMaxBalance },
+  } = useActions()
+
+  const address = getAddressByChain(selectedAsset.chain)
+  const balance = getMaxBalance(selectedAsset)
+  const balanceInUsd = getAssetPriceInUsd({ asset: selectedAsset, amount: balance })
+  
+
   return (
     <>
       <div className='flex bg-accent items-start rounded gap-4 p-6 text-accent-content text-xl flex-col m-6'>
@@ -18,7 +28,7 @@ export function Receive() {
             href='#selectReceiveAssetModal'
             className='btn border-primary text-xl cursor-pointer flex items-center gap-2'
           >
-            <span className='font-semibold'>{asset.symbol} </span>
+            <span className='font-semibold'>{selectedAsset.symbol} </span>
             <Image
               src='/arrow-down.svg'
               alt='arrow down'
@@ -33,7 +43,7 @@ export function Receive() {
               <span>Address:</span>
               <Address
                 address={address}
-                asset={asset}
+                asset={selectedAsset}
                 expanded
                 className='text-accent-content'
               />
@@ -48,7 +58,7 @@ export function Receive() {
                     {balance.assetAmount.toNumber().toString().includes('.')
                       ? balance.assetAmount.toNumber()
                       : balance.assetAmount.toNumber().toFixed(1)}{' '}
-                    {asset.symbol}{' '}
+                    {selectedAsset.symbol}{' '}
                     <span>
                       <span className='text-primary-content'>
                         ($
@@ -62,7 +72,7 @@ export function Receive() {
             <div className='bg-accent-focus relative p-6 pb-10 rounded-xl flex items-center justify-center'>
               <QRCode value={address} />
               <span className='text-primary-content absolute bottom-2'>
-                Your {asset.symbol} address
+                Your {selectedAsset.symbol} address
               </span>
             </div>
           </>

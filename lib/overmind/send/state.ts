@@ -1,27 +1,27 @@
 import { Amount, Asset } from 'lib/entities'
+import { derived } from 'overmind'
 
 type State = {
-  asset: Asset
+  selectedAssetId: string
+  selectedAsset: Asset
   recipient: string
-  rawValue: string
   amount: Amount
-  amountInUsd: string
   fee: Amount
-  feeInUsd: string
   isFormComplete: boolean
-  isFormValid: boolean
 }
 
 export const state: State = {
-  asset: Asset.getNativeAsset('BTC'),
+  selectedAssetId: Asset.getNativeAsset('BTC').toString(),
+  selectedAsset:
+    derived((state: State) => Asset.fromAssetId(state.selectedAssetId)) ??
+    Asset.getNativeAsset('BTC'),
   recipient: '',
-  rawValue: '0',
   amount: Amount.fromAssetAmount(0, 8),
-  amountInUsd: '0',
   fee: Amount.fromAssetAmount(0, 8),
-  feeInUsd: '0',
-  isFormComplete: false,
-  isFormValid: false,
+  isFormComplete: derived(
+    (state: State) =>
+      state.recipient.length > 0 && state.amount.baseAmount.toNumber() !== 0,
+  ),
 }
 
 // useEffect(() => {
@@ -30,4 +30,3 @@ export const state: State = {
 //   }
 //   getFee()
 // }, [sendAsset.chain])
-

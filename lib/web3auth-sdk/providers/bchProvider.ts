@@ -1,7 +1,7 @@
 import axios from 'axios'
 import bitcore from 'bitcore-lib-cash'
 import { Amount, Asset } from '../../entities'
-import { Network, TxParams } from '../types'
+import { Network, TxParams } from 'lib/types'
 import { haskoinMainnetUrl } from '../constants'
 
 import { IWalletProvider } from '../types'

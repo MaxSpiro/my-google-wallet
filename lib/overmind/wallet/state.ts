@@ -1,4 +1,4 @@
-import { IWallet } from 'lib/web3auth-sdk'
+import { IWallet } from 'lib/types'
 
 type State = {
   isConnected: boolean

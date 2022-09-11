@@ -2,6 +2,8 @@ import { Amount, Asset } from 'lib/entities'
 import { derived } from 'overmind'
 
 type State = {
+  inputAssetId: string
+  outputAssetId: string
   inputAsset: Asset
   outputAsset: Asset
   rawValue: string
@@ -13,8 +15,10 @@ type State = {
 }
 
 export const state: State = {
-  inputAsset: Asset.getNativeAsset('BTC'),
-  outputAsset: Asset.getNativeAsset('ETH'),
+  inputAssetId: Asset.getNativeAsset('BTC').toString(),
+  outputAssetId: Asset.getNativeAsset('ETH').toString(),
+  inputAsset: derived((state: State) => Asset.fromAssetId(state.inputAssetId)) ?? Asset.getNativeAsset('BTC'),
+  outputAsset: derived((state: State) => Asset.fromAssetId(state.outputAssetId)) ?? Asset.getNativeAsset('ETH'),
   rawValue: '0',
   inputAmount: derived((state: State) =>
     Amount.fromAssetAmount(Number(state.rawValue), state.inputAsset.decimal),

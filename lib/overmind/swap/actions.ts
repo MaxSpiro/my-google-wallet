@@ -4,10 +4,10 @@ import toast from 'react-hot-toast'
 import { Context } from '../'
 
 export const setInputAsset = ({ state }: Context, asset: Asset) => {
-  state.swap.inputAsset = asset
+  state.swap.inputAssetId = asset.toString()
 }
 export const setOutputAsset = ({ state }: Context, asset: Asset) => {
-  state.swap.outputAsset = asset
+  state.swap.outputAssetId = asset.toString()
 }
 
 export const handleChange = (

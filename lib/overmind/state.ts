@@ -1,4 +1,5 @@
 import { Asset } from 'lib/entities'
+import { Network } from 'lib/types'
 
 type State = {
   assetPricesInUsd: Record<string, string>
@@ -10,6 +11,6 @@ export const state: State = {
   assetPricesInUsd: {
     BTC: '20000',
   },
-  supportedAssets: [],
-  appLoading: true
+  supportedAssets: [Asset.getNativeAsset('BTC')],
+  appLoading: true,
 }

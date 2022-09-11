@@ -2,7 +2,7 @@ import { Network } from '@xchainjs/xchain-client'
 import axios from 'axios'
 import * as bitcoin from 'bitcoinjs-lib'
 import { Amount, Asset } from '../../entities'
-import { TxParams } from '../types'
+import { TxParams } from 'lib/types'
 import { sochainBaseUrl } from '../constants'
 
 import { IWalletProvider } from '../types'

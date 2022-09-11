@@ -18,7 +18,7 @@ const TradeComponents = {
 export const Trade = () => {
   const [title, setTitle] = useState<TradeOption>(TradeOption.Swap)
   return (
-    <div className='col-span-5  py-2 px-6 bg-base-100 font-body text-primary-content'>
+    <div className='col-span-5 max-h-[92vh] py-2 px-6 bg-base-100 font-body text-primary-content'>
       <h1 className='font-semibold text-3xl text-center'>
         <span
           onClick={() => setTitle(TradeOption.Send)}
@@ -51,9 +51,3 @@ export const Trade = () => {
     </div>
   )
 }
-
-
-
-
-
-

@@ -8,7 +8,6 @@ export const WalletInfo = ({ mode }: { mode: SidebarMode }) => {
     supportedAssets,
     wallet: { isConnected },
   } = useAppState()
-  console.log(isConnected, supportedAssets)
   const {
     wallet: {
       handleConnectGoogle,
@@ -18,7 +17,6 @@ export const WalletInfo = ({ mode }: { mode: SidebarMode }) => {
     },
     getAssetPriceInUsd,
   } = useActions()
-  console.log('rerendering wallet info')
 
   if (!isConnected) {
     return (

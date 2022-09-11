@@ -1,7 +1,7 @@
 import axios from 'axios'
 import * as bitcoin from 'bitcoinjs-lib'
 import { Amount, Asset } from '../../entities'
-import { TxParams, Network } from '../types'
+import { TxParams, Network } from 'lib/types'
 import { sochainBaseUrl } from '../constants'
 
 import { IWalletProvider } from '../types'

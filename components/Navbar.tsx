@@ -71,7 +71,7 @@ export const Navbar = () => {
   }
 
   return (
-    <div className='navbar font-header h-16 bg-secondary text-neutral justify-between'>
+    <div className='navbar font-header max-h-[8vh] bg-secondary text-neutral justify-between'>
       <div>
         <Link href='/'>
           <a className='btn btn-ghost normal-case text-2xl flex gap-2 items-center'>
