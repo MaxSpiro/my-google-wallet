@@ -8,9 +8,7 @@ type State = {
 }
 
 export const state: State = {
-  assetPricesInUsd: {
-    BTC: '20000',
-  },
+  assetPricesInUsd: {},
   supportedAssets: [Asset.getNativeAsset('BTC')],
   appLoading: true,
 }

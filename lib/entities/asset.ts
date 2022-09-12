@@ -68,7 +68,7 @@ export class Asset {
     // "ETH.AAVE-0X7FC66500C84A76AD7E9C93437BFC5AC33E2DDAE9"
     const [asset, address] = assetId.split('-')
     const [chain, symbol] = asset.split('.')
-    return new Asset(chain, symbol).setAddress(address)
+    return new Asset(chain, symbol).setAddress(address).setDecimal(this.getDecimalByChain(chain))
   }
   constructor(chain: string, symbol: string) {
     this.chain = chain

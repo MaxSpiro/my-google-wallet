@@ -3,12 +3,13 @@ import { Asset } from 'lib/entities'
 import { Network } from 'lib/types'
 
 export const api = {
-  loadAssetPrices(assets: Asset[]) {
-    return axios.get(
-      `http://localhost:3000/api/usd?symbols=${assets
-        .map((a) => a.symbol)
-        .join(',')}`,
-    )
+  async loadAssetPrices(assets: Asset[]) {
+    const res = await axios.get('http://localhost:3000/api/usd', {
+      data: {
+        assetIds: assets.map(asset => asset.toString()),
+      }
+    })
+    return JSON.parse(res.data)
   },
   loadSupportedAssets() {
     return [

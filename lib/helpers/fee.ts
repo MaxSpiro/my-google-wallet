@@ -17,7 +17,7 @@ export const getFeeEstimateByChain = async (chain: string): Promise<Amount> => {
     if (chain === 'GAIA') {
       return Amount.fromAssetAmount(0.004, 6)
     }
-    if (chain === 'ETH' || chain === 'MATIC') {
+    if (chain === 'ETH' || chain === 'POLYGON') {
       try {
         const res = await axios.get(
           `${
@@ -36,7 +36,7 @@ export const getFeeEstimateByChain = async (chain: string): Promise<Amount> => {
           18,
         )
       } catch (e) {
-        console.log(e)
+        console.error(e)
       }
     }
     return Amount.fromBaseAmount(0, 8)

@@ -7,9 +7,15 @@ export const setRecipient = ({ state }: Context, recipient: string) => {
   state.send.recipient = recipient
 }
 
-export const setSendAsset = ({ state, effects, actions }: Context, asset: Asset) => {
+export const setSendAsset = (
+  { state, effects, actions }: Context,
+  asset: Asset,
+) => {
   state.send.selectedAssetId = asset.toString()
-  effects.send.getNetworkFeeByChain(state.send.selectedAsset.chain, (amount: Amount) => actions.send.setFee(amount))
+  effects.send.getNetworkFeeByChain(
+    state.send.selectedAsset.chain,
+    (amount: Amount) => actions.send.setFee(amount),
+  )
 }
 
 export const setFee = ({ state }: Context, fee: Amount) => {
@@ -33,6 +39,7 @@ export const handleSubmit = async ({ state, actions, effects }: Context) => {
     toast.error('Invalid address')
     return
   }
+
   toast.error(
     `asset ${state.send.selectedAsset.toString()}, amount ${
       state.send.amount

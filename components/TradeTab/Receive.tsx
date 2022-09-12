@@ -3,6 +3,7 @@ import QRCode from 'react-qr-code'
 import Image from 'next/image'
 import { AssetType, SelectAssetModal } from 'components/SelectAssetModal'
 import { useActions, useAppState } from 'lib/overmind'
+import { useState } from 'react'
 
 export function Receive() {
   const {
@@ -16,8 +17,12 @@ export function Receive() {
 
   const address = getAddressByChain(selectedAsset.chain)
   const balance = getMaxBalance(selectedAsset)
-  const balanceInUsd = getAssetPriceInUsd({ asset: selectedAsset, amount: balance })
-  
+  const balanceInUsd = getAssetPriceInUsd({
+    asset: selectedAsset,
+    amount: balance,
+  })
+
+  const [isSelectAssetModalOpen, setIsSelectAssetModalOpen] = useState(false)
 
   return (
     <>
@@ -25,7 +30,7 @@ export function Receive() {
         <div className='flex items-center gap-2'>
           <label htmlFor='asset'>Asset: </label>
           <a
-            href='#selectReceiveAssetModal'
+            onClick={() => setIsSelectAssetModalOpen(true)}
             className='btn border-primary text-xl cursor-pointer flex items-center gap-2'
           >
             <span className='font-semibold'>{selectedAsset.symbol} </span>
@@ -80,7 +85,11 @@ export function Receive() {
           <>Connect wallet to see your address & balance</>
         )}
       </div>
-      <SelectAssetModal assetType={AssetType.Receive} />
+      <SelectAssetModal
+        assetType={AssetType.Receive}
+        isOpen={isSelectAssetModalOpen}
+        setIsOpen={setIsSelectAssetModalOpen}
+      />
     </>
   )
 }

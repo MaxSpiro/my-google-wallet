@@ -14,9 +14,16 @@ export function Send() {
     getAssetPriceInUsd,
   } = useActions()
 
-  const feeInUsd = getAssetPriceInUsd({ asset: selectedAsset, amount: fee })
+  const [isSelectAssetModalOpen, setIsSelectAssetModalOpen] = useState(false)
 
   const [rawValue, setRawValue] = useState('')
+
+  const feeInUsd = getAssetPriceInUsd({ asset: selectedAsset, amount: fee })
+
+  const amountInUsd =
+    rawValue === '0' || !rawValue
+      ? '0'
+      : getAssetPriceInUsd({ asset: selectedAsset, amount })
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.name === 'recipient') {
@@ -46,14 +53,9 @@ export function Send() {
     setRawValue(getMaxBalance(selectedAsset).assetAmount.toNumber().toString())
   }
 
-  const amountInUsd =
-    rawValue === '0' || !rawValue
-      ? '0'
-      : getAssetPriceInUsd({ asset: selectedAsset, amount })
-
   const ConfirmSend = () => {
     return (
-      <div className='w-full flex justify-between items-center bg-accent-focus rounded  text-white p-2'>
+      <div className='w-full flex flex-col gap-2 bg-accent-focus rounded  text-white p-2'>
         <div>
           <h1 className='text-2xl'>Confirm Send:</h1>
           <p>
@@ -74,13 +76,17 @@ export function Send() {
     )
   }
 
+  const ConfirmSendModal = () => {
+    return <div />
+  }
+
   return (
     <>
       <div className='flex bg-accent rounded gap-4 p-6 text-accent-content flex-col m-6'>
         <div className='flex items-center text-xl gap-2'>
           <label htmlFor='asset'>Asset: </label>
           <a
-            href='#selectSendAssetModal'
+            onClick={() => setIsSelectAssetModalOpen(true)}
             className='btn border-primary text-xl cursor-pointer flex items-center gap-2'
           >
             <span className='font-semibold'>{selectedAsset.symbol} </span>
@@ -124,7 +130,12 @@ export function Send() {
         </div>
         {isFormComplete && <ConfirmSend />}
       </div>
-      <SelectAssetModal assetType={AssetType.Send} />
+      <SelectAssetModal
+        assetType={AssetType.Send}
+        isOpen={isSelectAssetModalOpen}
+        setIsOpen={setIsSelectAssetModalOpen}
+      />
+      <ConfirmSendModal />
     </>
   )
 }

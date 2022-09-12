@@ -10,8 +10,6 @@ type State = {
   inputAmount: Amount
   outputAmount: Amount
   fee: Amount
-  inputAmountInUsd: string
-  outputAmountInUsd: string
 }
 
 export const state: State = {
@@ -25,6 +23,4 @@ export const state: State = {
   ),
   outputAmount: Amount.fromAssetAmount(0, 8),
   fee: Amount.fromAssetAmount(0, 8),
-  inputAmountInUsd: '0',
-  outputAmountInUsd: '0',
 }

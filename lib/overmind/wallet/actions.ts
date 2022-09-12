@@ -2,6 +2,7 @@ import { Context } from '..'
 import { web3auth } from 'lib/services/web3auth'
 import toast from 'react-hot-toast'
 import { Amount, Asset } from 'lib/entities'
+import { TxParams } from 'lib/types'
 
 export const handleConnectGoogle = async ({
   state,
@@ -67,6 +68,21 @@ export const refreshBalances = async ({ state }: Context) => {
     loading: 'Refreshing balances...',
     success: 'Balances up to date!',
     error: 'Error refreshing balances',
+  })
+}
+
+export const signAndSendTransaction = async (
+  { state }: Context,
+  txParams: TxParams,
+) => {
+  if (!state.wallet.wallet) {
+    toast.error('Wallet not connected')
+    return
+  }
+  await toast.promise(state.wallet.wallet.signAndSendTransaction(txParams), {
+    loading: 'Sending transaction...',
+    success: 'Transaction sent!',
+    error: 'Error sending transaction',
   })
 }
 

@@ -1,21 +1,30 @@
 import Image from 'next/image'
 import { AssetType, SelectAssetModal } from 'components/SelectAssetModal'
 import { useActions, useAppState } from 'lib/overmind'
+import { useEffect, useState } from 'react'
 
 export function Swap() {
   const {
-    swap: {
-      inputAsset,
-      outputAsset,
-      rawValue,
-      inputAmountInUsd,
-      outputAmountInUsd,
-      outputAmount,
-    },
+    swap: { inputAsset, outputAsset, rawValue, inputAmount, outputAmount },
   } = useAppState()
   const {
     swap: { handleChange, handleGetQuote },
+    getAssetPriceInUsd,
   } = useActions()
+
+  const inputAmountInUsd = getAssetPriceInUsd({
+    asset: inputAsset,
+    amount: inputAmount,
+  })
+  const outputAmountInUsd = getAssetPriceInUsd({
+    asset: outputAsset,
+    amount: outputAmount,
+  })
+
+  const [isSelectInputAssetModalOpen, setIsSelectInputAssetModalOpen] =
+    useState(false)
+  const [isSelectOutputAssetModalOpen, setIsSelectOutputAssetModalOpen] =
+    useState(false)
 
   return (
     <>
@@ -25,7 +34,7 @@ export function Swap() {
             <div className='flex items-center gap-2'>
               <label htmlFor='asset'>Input asset </label>
               <a
-                href='#selectInputAssetModal'
+                onClick={() => setIsSelectInputAssetModalOpen(true)}
                 className='btn border-primary text-xl cursor-pointer flex items-center gap-2'
               >
                 <span className='font-semibold'>{inputAsset.symbol} </span>
@@ -60,7 +69,7 @@ export function Swap() {
           <div className='flex flex-col gap-4'>
             <div className='flex items-center gap-2'>
               <a
-                href='#selectOutputAssetModal'
+                onClick={() => setIsSelectOutputAssetModalOpen(true)}
                 className='btn border-primary text-xl cursor-pointer flex items-center gap-2'
               >
                 <span className='font-semibold'>{outputAsset.symbol} </span>
@@ -82,7 +91,7 @@ export function Swap() {
                   name='value'
                   type='text'
                   readOnly
-                  value={outputAmount.assetAmount.toNumber()}
+                  value={outputAmount.assetAmount.toNumber().toFixed(4)}
                   placeholder='0.00'
                   className='input text-right input-bordered input-primary w-full max-w-xs text-white'
                 />
@@ -92,8 +101,16 @@ export function Swap() {
           </div>
         </div>
       </div>
-      <SelectAssetModal assetType={AssetType.Input} />
-      <SelectAssetModal assetType={AssetType.Output} />
+      <SelectAssetModal
+        assetType={AssetType.Input}
+        isOpen={isSelectInputAssetModalOpen}
+        setIsOpen={setIsSelectInputAssetModalOpen}
+      />
+      <SelectAssetModal
+        assetType={AssetType.Output}
+        isOpen={isSelectOutputAssetModalOpen}
+        setIsOpen={setIsSelectOutputAssetModalOpen}
+      />
     </>
   )
 }

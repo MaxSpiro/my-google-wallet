@@ -7,24 +7,17 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   const {
-    query: { symbols },
+    body: { assetIds },
   } = req
-  if (!symbols) {
-    res.status(400).json({ error: 'Missing symbols in query' })
-    return
-  }
-  if (Array.isArray(symbols) || !/^(([a-zA-Z](,)?)*)+$/.test(symbols)) {
-    res.status(400).json({
-      error:
-        'Symbols should be a comma separated list with no spaces (e.g. ETH,BTC,BNB)',
-    })
+  if (!assetIds || !Array.isArray(assetIds)) {
+    res.status(400).json({ error: 'Send assetIds in array form' })
     return
   }
   const prices: Record<string, string> = {}
   const response = await axios.get(
-    `${
-      process.env.CMC_BASEURL
-    }/cryptocurrency/quotes/latest?symbol=${symbols.toUpperCase()}`,
+    `${process.env.CMC_BASEURL}/cryptocurrency/quotes/latest?symbol=${assetIds
+      .map((assetId: string) => assetId.split('.')[1])
+      .join(',')}`,
     {
       headers: {
         'X-CMC_PRO_API_KEY': process.env.CMC_APIKEY ?? '',
@@ -33,9 +26,9 @@ export default async function handler(
       },
     },
   )
-  for (const symbol of symbols.split(',')) {
-    prices[symbol] =
-      response.data.data[symbol]?.[0]?.quote?.USD?.price?.toString()
+  for (const id of assetIds) {
+    prices[id] =
+      response.data.data[id.split('.')[1]]?.[0]?.quote?.USD?.price?.toString()
   }
   res.status(200).json(JSON.stringify(prices))
 }

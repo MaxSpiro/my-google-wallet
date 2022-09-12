@@ -2,15 +2,20 @@ import { Amount, Asset } from 'lib/entities'
 import { Network } from 'lib/types'
 import { rehydrate } from 'overmind'
 import { Context } from '.'
-import { state } from './swap'
 
 export const loadAssetPrices = async (
   { effects, state }: Context,
   assets: Asset[],
 ) => {
-  state.assetPricesInUsd = JSON.parse(
-    (await effects.api.loadAssetPrices(assets)).data,
-  )
+  try {
+    const res = await effects.api.loadAssetPrices(assets)
+    console.log(res)
+    if (res) {
+      state.assetPricesInUsd = res
+    }
+  } catch (e) {
+    console.error('error fetching asset prices', e)
+  }
 }
 
 export const loadSupportedAssets = async ({ effects, state }: Context) => {
@@ -18,16 +23,16 @@ export const loadSupportedAssets = async ({ effects, state }: Context) => {
   state.supportedAssets = supportedAssets
 }
 
-
 export const getAssetPriceInUsd = (
   { state }: Context,
   { asset, amount }: { asset: Asset; amount: Amount },
 ) => {
-  return (
-    Number(state.assetPricesInUsd[asset.symbol]) * amount.assetAmount.toNumber()
-  )
-    .toFixed(2)
-    .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return !!state.assetPricesInUsd[asset.toString()]
+    ? Intl.NumberFormat('en', { notation: 'compact' }).format(
+        Number(state.assetPricesInUsd[asset.symbol]) *
+          amount.assetAmount.toNumber(),
+      )
+    : '0'
 }
 
 export const onInitializeOvermind = async ({
@@ -37,9 +42,14 @@ export const onInitializeOvermind = async ({
 }: Context) => {
   await actions.loadSupportedAssets()
   await actions.loadAssetPrices(state.supportedAssets)
+  actions.send.setSendAsset(state.send.selectedAsset)
   state.appLoading = false
+  console.log('in initialize', state.assetPricesInUsd)
 }
 
-export const changePage = ({ state }: Context, mutations: any) => {
+export const changePage = (
+  { state }: Context,
+  { mutations }: { mutations: any },
+) => {
   rehydrate(state, mutations || [])
 }

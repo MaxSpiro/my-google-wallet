@@ -8,7 +8,15 @@ export enum AssetType {
   Receive = 'Receive',
 }
 
-export const SelectAssetModal = ({ assetType }: { assetType: AssetType }) => {
+export const SelectAssetModal = ({
+  assetType,
+  isOpen,
+  setIsOpen,
+}: {
+  assetType: AssetType
+  isOpen: boolean
+  setIsOpen: (value: boolean) => void
+}) => {
   const { supportedAssets } = useAppState()
   const {
     send: { setSendAsset },
@@ -33,14 +41,20 @@ export const SelectAssetModal = ({ assetType }: { assetType: AssetType }) => {
     }
   }
   return (
-    <div className='modal text-white' id={`select${assetType}AssetModal`}>
+    <div className={`modal text-white ${isOpen && 'modal-open'}`}>
       <div className='modal-box'>
         <h3 className='font-bold text-lg'>Select an native asset to send</h3>
         <ul className='gap-2 flex flex-col'>
           {supportedAssets.map((asset) => {
             return (
               <li key={asset.symbol}>
-                <a href='#' onClick={() => handleSelectAsset(asset)}>
+                <a
+                  className='cursor-pointer'
+                  onClick={() => {
+                    handleSelectAsset(asset)
+                    setIsOpen(false)
+                  }}
+                >
                   {asset.symbol}
                 </a>
               </li>
@@ -48,7 +62,7 @@ export const SelectAssetModal = ({ assetType }: { assetType: AssetType }) => {
           })}
         </ul>
         <div className='modal-action'>
-          <a href='#' className='btn'>
+          <a onClick={() => setIsOpen(false)} className='btn'>
             Confirm
           </a>
         </div>
