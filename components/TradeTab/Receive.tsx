@@ -1,26 +1,24 @@
 import { Address } from 'components'
 import QRCode from 'react-qr-code'
 import Image from 'next/image'
-import { AssetType, SelectAssetModal } from 'components/SelectAssetModal'
-import { useActions, useAppState } from 'lib/overmind'
+import { SelectAssetModal } from 'components/SelectAssetModal'
 import { useState } from 'react'
+import { Amount, Asset } from 'lib/entities'
+import { useWallet } from 'lib/hooks/useWallet'
+import { useStore } from 'lib/zustand'
+import { useFiat } from 'lib/hooks/useFiat'
 
 export function Receive() {
-  const {
-    wallet: { isConnected },
-    receive: { selectedAsset },
-  } = useAppState()
-  const {
-    getAssetPriceInUsd,
-    wallet: { getAddressByChain, getMaxBalance },
-  } = useActions()
+  const { getAssetPriceInUsd } = useFiat()
+  const [asset, setAsset] = useStore((state) => [
+    state.receive.asset,
+    state.receive.setAsset,
+  ])
+  const { getMaxBalance, getAddress, isConnected } = useWallet()
 
-  const address = getAddressByChain(selectedAsset.chain)
-  const balance = getMaxBalance(selectedAsset)
-  const balanceInUsd = getAssetPriceInUsd({
-    asset: selectedAsset,
-    amount: balance,
-  })
+  const address = getAddress(asset.chain)
+  const balance = getMaxBalance(asset)
+  const balanceInUsd = getAssetPriceInUsd(asset, balance)
 
   const [isSelectAssetModalOpen, setIsSelectAssetModalOpen] = useState(false)
 
@@ -33,7 +31,7 @@ export function Receive() {
             onClick={() => setIsSelectAssetModalOpen(true)}
             className='btn border-primary text-xl cursor-pointer flex items-center gap-2'
           >
-            <span className='font-semibold'>{selectedAsset.symbol} </span>
+            <span className='font-semibold'>{asset.symbol} </span>
             <Image
               src='/arrow-down.svg'
               alt='arrow down'
@@ -48,7 +46,7 @@ export function Receive() {
               <span>Address:</span>
               <Address
                 address={address}
-                asset={selectedAsset}
+                asset={asset}
                 expanded
                 className='text-accent-content'
               />
@@ -63,7 +61,7 @@ export function Receive() {
                     {balance.assetAmount.toNumber().toString().includes('.')
                       ? balance.assetAmount.toNumber()
                       : balance.assetAmount.toNumber().toFixed(1)}{' '}
-                    {selectedAsset.symbol}{' '}
+                    {asset.symbol}{' '}
                     <span>
                       <span className='text-primary-content'>
                         ($
@@ -77,7 +75,7 @@ export function Receive() {
             <div className='bg-accent-focus relative p-6 pb-10 rounded-xl flex items-center justify-center'>
               <QRCode value={address} />
               <span className='text-primary-content absolute bottom-2'>
-                Your {selectedAsset.symbol} address
+                Your {asset.symbol} address
               </span>
             </div>
           </>
@@ -86,7 +84,7 @@ export function Receive() {
         )}
       </div>
       <SelectAssetModal
-        assetType={AssetType.Receive}
+        setAsset={setAsset}
         isOpen={isSelectAssetModalOpen}
         setIsOpen={setIsSelectAssetModalOpen}
       />

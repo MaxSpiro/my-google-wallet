@@ -29,15 +29,14 @@
     "bitcore-lib-cash": "^8.25.36",
     "daisyui": "^2.24.2",
     "next": "12.2.5",
-    "overmind": "^28.0.1",
-    "overmind-react": "^29.0.1",
     "rango-sdk-basic": "^0.0.7",
     "react": "18.2.0",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "18.2.0",
     "react-hot-toast": "^2.3.0",
     "react-qr-code": "^2.0.7",
-    "web3": "^1.7.5"
+    "web3": "^1.7.5",
+    "zustand": "^4.1.1"
   },
   "devDependencies": {
     "@types/bitcore-lib-cash": "^8.23.5",

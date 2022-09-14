@@ -24,7 +24,9 @@ export interface IWallet {
 
   isConnected: boolean
 
-  connect: (chains: string[]) => Promise<void>
+  userInfo: any
+
+  connect: (chains: string[]) => Promise<IWallet>
   disconnect: () => Promise<void>
 
   getAddress: (chain: string) => string

@@ -1,20 +1,15 @@
-import { useActions, useAppState } from 'lib/overmind'
+import { useWallet } from 'lib/hooks/useWallet'
 import Image from 'next/image'
 import Link from 'next/link'
 import Google from 'public/google.svg'
 
 export const Navbar = () => {
-  const {
-    wallet: { userInfo, isConnected },
-  } = useAppState()
-  const {
-    wallet: { handleConnectGoogle, handleDisconnect },
-  } = useActions()
+  const { userInfo, isConnected, connectGoogle, disconnectWallet } = useWallet()
 
   const ConnectGoogle = () => (
     <button
       className='btn btn-primary flex gap-2 text-lg'
-      onClick={handleConnectGoogle}
+      onClick={connectGoogle}
     >
       <div className='avatar'>
         <div className='w-12 rounded'>
@@ -28,7 +23,7 @@ export const Navbar = () => {
   const ProfileMenu = () => {
     return (
       <div className='dropdown dropdown-end'>
-        {!!userInfo?.profileImage ? (
+        {userInfo?.profileImage ? (
           <label tabIndex={0} className='btn btn-ghost btn-circle avatar'>
             <div className='w-16 rounded-full'>
               <Image
@@ -63,7 +58,7 @@ export const Navbar = () => {
             </Link>
           </li>
           <li>
-            <a onClick={handleDisconnect}>Logout</a>
+            <a onClick={disconnectWallet}>Logout</a>
           </li>
         </ul>
       </div>

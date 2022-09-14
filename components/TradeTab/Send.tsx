@@ -1,29 +1,36 @@
 import Image from 'next/image'
-import { AssetType, SelectAssetModal } from 'components/SelectAssetModal'
-import { useActions, useAppState } from 'lib/overmind'
+import { SelectAssetModal } from 'components/SelectAssetModal'
+
 import { useState } from 'react'
-import { Amount } from 'lib/entities'
+import { Amount, Asset } from 'lib/entities'
+import { useSend } from 'lib/hooks/useSend'
+import { useWallet } from 'lib/hooks/useWallet'
+import { useFiat } from 'lib/hooks/useFiat'
 
 export function Send() {
   const {
-    send: { amount, selectedAsset, recipient, fee, isFormComplete },
-  } = useAppState()
-  const {
-    send: { handleSubmit, setAmount, setRecipient },
-    wallet: { getMaxBalance },
-    getAssetPriceInUsd,
-  } = useActions()
+    asset,
+    amount,
+    fee,
+    recipient,
+    isFetchingFee,
+    setRecipient,
+    setAmount,
+    setAsset,
+  } = useSend()
+  const { getMaxBalance } = useWallet()
+  const { getAssetPriceInUsd } = useFiat()
 
   const [isSelectAssetModalOpen, setIsSelectAssetModalOpen] = useState(false)
+  const [isPreviewTransactionModalOpen, setIsPreviewTransactionModalOpen] =
+    useState(false)
 
   const [rawValue, setRawValue] = useState('')
 
-  const feeInUsd = getAssetPriceInUsd({ asset: selectedAsset, amount: fee })
+  const feeInUsd = getAssetPriceInUsd(asset, fee)
 
   const amountInUsd =
-    rawValue === '0' || !rawValue
-      ? '0'
-      : getAssetPriceInUsd({ asset: selectedAsset, amount })
+    rawValue === '0' || !rawValue ? '0' : getAssetPriceInUsd(asset, amount)
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.name === 'recipient') {
@@ -31,6 +38,11 @@ export function Send() {
     }
     if (event.target.name === 'value') {
       const newValue = event.target.value
+      if (!newValue) {
+        setAmount(Amount.fromAssetAmount(0, asset.decimal))
+        setRawValue('')
+        return
+      }
       if (newValue === '.') {
         setRawValue('0.')
         return
@@ -41,16 +53,14 @@ export function Send() {
       }
       if (/^\d*\.?\d*$/.test(newValue)) {
         setRawValue(event.target.value)
-        setAmount(
-          Amount.fromAssetAmount(event.target.value, selectedAsset.decimal),
-        )
+        setAmount(Amount.fromAssetAmount(event.target.value, asset.decimal))
       }
     }
   }
 
   const setMaxBalance = () => {
-    setAmount(getMaxBalance(selectedAsset))
-    setRawValue(getMaxBalance(selectedAsset).assetAmount.toNumber().toString())
+    setAmount(getMaxBalance(asset).sub(fee))
+    setRawValue(getMaxBalance(asset).sub(fee).assetAmount.toNumber().toString())
   }
 
   const ConfirmSend = () => {
@@ -59,25 +69,25 @@ export function Send() {
         <div>
           <h1 className='text-2xl'>Confirm Send:</h1>
           <p>
-            Sending {Number(rawValue)} {selectedAsset.symbol} (
+            Sending {Number(rawValue)} {asset.symbol} (
             <span className='text-primary-content'>${amountInUsd}</span>) to{' '}
             {recipient}
           </p>
           <p>
             Estimated fee: {fee.assetAmount.toNumber().toFixed(4)}{' '}
-            {selectedAsset.symbol} (
+            {asset.symbol} (
             <span className='text-primary-content'>${feeInUsd}</span>)
           </p>
         </div>
-        <button onClick={handleSubmit} className='btn btn-secondary'>
+        <button
+          disabled={isFetchingFee}
+          onClick={() => setIsPreviewTransactionModalOpen(true)}
+          className='btn btn-secondary'
+        >
           Preview Transaction
         </button>
       </div>
     )
-  }
-
-  const ConfirmSendModal = () => {
-    return <div />
   }
 
   return (
@@ -89,7 +99,7 @@ export function Send() {
             onClick={() => setIsSelectAssetModalOpen(true)}
             className='btn border-primary text-xl cursor-pointer flex items-center gap-2'
           >
-            <span className='font-semibold'>{selectedAsset.symbol} </span>
+            <span className='font-semibold'>{asset.symbol} </span>
             <Image
               src='/arrow-down.svg'
               alt='arrow down'
@@ -128,14 +138,94 @@ export function Send() {
             className='input input-bordered input-primary w-full max-w-xs text-white'
           />
         </div>
-        {isFormComplete && <ConfirmSend />}
+        <ConfirmSend />
       </div>
       <SelectAssetModal
-        assetType={AssetType.Send}
+        setAsset={setAsset}
         isOpen={isSelectAssetModalOpen}
         setIsOpen={setIsSelectAssetModalOpen}
       />
-      <ConfirmSendModal />
+      <PreviewTransactionModal
+        isOpen={isPreviewTransactionModalOpen}
+        setIsOpen={setIsPreviewTransactionModalOpen}
+      />
     </>
+  )
+}
+
+function PreviewTransactionModal({
+  isOpen,
+  setIsOpen,
+}: {
+  isOpen: boolean
+  setIsOpen: (b: boolean) => void
+}) {
+  const { asset, amount, fee, recipient } = useSend()
+  const { getAssetPriceInUsd } = useFiat()
+  const { getMaxBalance } = useWallet()
+  const amountInUsd = getAssetPriceInUsd(asset, amount)
+  const feeInUsd = getAssetPriceInUsd(asset, fee)
+  const balance = getMaxBalance(asset)
+  const balanceInUsd = getAssetPriceInUsd(asset, balance)
+  const endingBalance = balance.sub(fee).sub(amount)
+  const endingBalanceInUsd = getAssetPriceInUsd(asset, endingBalance)
+
+  const isTransactionValid = endingBalance.gt(0)
+  return (
+    <div className={`modal text-white ${isOpen && 'modal-open'}`}>
+      <div className='modal-box relative'>
+        <figure
+          className='absolute cursor-pointer top-6 right-6'
+          onClick={() => setIsOpen(false)}
+        >
+          <Image src='/x.svg' alt='x button' height={20} width={20} />
+        </figure>
+        <h3 className='font-bold text-2xl'>Preview Transaction</h3>
+        <ul className='gap-2 p-2 flex flex-col'>
+          <p>
+            Sending {amount.assetAmount.toNumber()} {asset.symbol} (
+            <span className='text-primary-content'>${amountInUsd}</span>) to{' '}
+            <span className='text-secondary-focus'>{recipient}</span>
+          </p>
+          <p>
+            Estimated fee: {fee.assetAmount.toNumber().toFixed(4)}{' '}
+            {asset.symbol} (
+            <span className='text-primary-content'>${feeInUsd}</span>)
+          </p>
+          <div className='divider' />
+          <div className='flex justify-between items-center'>
+            <div>
+              <p>Balance before:</p>
+              <p>
+                {balance.assetAmount.toNumber()} {asset.symbol} (
+                <span className='text-primary-content'>${balanceInUsd}</span>)
+              </p>
+            </div>
+            <div>
+              <p>Balance after:</p>
+              <p>
+                {endingBalance.assetAmount.toNumber()} {asset.symbol} (
+                <span className='text-primary-content'>
+                  ${endingBalanceInUsd}
+                </span>
+                )
+              </p>
+            </div>
+          </div>
+          {!isTransactionValid && (
+            <p className='text-error mt-2 text-center'>
+              Transaction is invalid
+            </p>
+          )}
+        </ul>
+        <button
+          onClick={() => setIsOpen(false)}
+          disabled={!isTransactionValid}
+          className='mt-6 btn btn-primary w-full'
+        >
+          Confirm Transaction
+        </button>
+      </div>
+    </div>
   )
 }

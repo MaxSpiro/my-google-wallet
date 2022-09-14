@@ -1,36 +1,56 @@
 import Image from 'next/image'
-import { AssetType, SelectAssetModal } from 'components/SelectAssetModal'
-import { useActions, useAppState } from 'lib/overmind'
-import { useEffect, useState } from 'react'
+import { SelectAssetModal } from 'components/SelectAssetModal'
+import { useState } from 'react'
+import { useSwap } from 'lib/hooks/useSwap'
+import { Amount, Asset } from 'lib/entities'
+import { useFiat } from 'lib/hooks/useFiat'
 
 export function Swap() {
   const {
-    swap: { inputAsset, outputAsset, rawValue, inputAmount, outputAmount },
-  } = useAppState()
-  const {
-    swap: { handleChange, handleGetQuote },
-    getAssetPriceInUsd,
-  } = useActions()
+    inputAsset,
+    inputAmount,
+    outputAsset,
+    outputAmount,
+    fee,
+    setInputAmount,
+    setInputAsset,
+    setOutputAsset,
+    handleGetQuote,
+  } = useSwap()
 
-  const inputAmountInUsd = getAssetPriceInUsd({
-    asset: inputAsset,
-    amount: inputAmount,
-  })
-  const outputAmountInUsd = getAssetPriceInUsd({
-    asset: outputAsset,
-    amount: outputAmount,
-  })
+  const { getAssetPriceInUsd } = useFiat()
+
+  const inputAmountInUsd = getAssetPriceInUsd(inputAsset, inputAmount)
+  const outputAmountInUsd = getAssetPriceInUsd(outputAsset, outputAmount)
 
   const [isSelectInputAssetModalOpen, setIsSelectInputAssetModalOpen] =
     useState(false)
   const [isSelectOutputAssetModalOpen, setIsSelectOutputAssetModalOpen] =
     useState(false)
 
+  const [rawValue, setRawValue] = useState('')
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.name === 'value') {
+      const newValue = event.target.value
+      if (newValue === '.') {
+        setRawValue('0.')
+        return
+      }
+      if (/^\d*\.?\d*$/.test(newValue)) {
+        setRawValue(event.target.value)
+
+        setInputAmount(
+          Amount.fromAssetAmount(!!newValue ? newValue : 0, inputAsset.decimal),
+        )
+      }
+    }
+  }
+
   return (
     <>
       <div className='flex bg-accent items-start rounded gap-4 p-6 text-accent-content text-xl flex-col m-6'>
-        <div className='w-full justify-between flex'>
-          <div className='flex flex-col gap-4'>
+        <div className='w-full grid-cols-5 grid'>
+          <div className='flex flex-col gap-4 col-span-2'>
             <div className='flex items-center gap-2'>
               <label htmlFor='asset'>Input asset </label>
               <a
@@ -63,10 +83,13 @@ export function Swap() {
               </div>
             </div>
           </div>
-          <button onClick={handleGetQuote} className='btn btn-primary'>
+          <button
+            onClick={handleGetQuote}
+            className='btn btn-primary col-span-1'
+          >
             Get Quote
           </button>
-          <div className='flex flex-col gap-4'>
+          <div className='flex flex-col gap-4 col-span-2 items-end'>
             <div className='flex items-center gap-2'>
               <a
                 onClick={() => setIsSelectOutputAssetModalOpen(true)}
@@ -91,7 +114,7 @@ export function Swap() {
                   name='value'
                   type='text'
                   readOnly
-                  value={outputAmount.assetAmount.toNumber().toFixed(4)}
+                  value={outputAmount.assetAmount.toNumber().toFixed(2)}
                   placeholder='0.00'
                   className='input text-right input-bordered input-primary w-full max-w-xs text-white'
                 />
@@ -102,12 +125,12 @@ export function Swap() {
         </div>
       </div>
       <SelectAssetModal
-        assetType={AssetType.Input}
+        setAsset={setInputAsset}
         isOpen={isSelectInputAssetModalOpen}
         setIsOpen={setIsSelectInputAssetModalOpen}
       />
       <SelectAssetModal
-        assetType={AssetType.Output}
+        setAsset={setOutputAsset}
         isOpen={isSelectOutputAssetModalOpen}
         setIsOpen={setIsSelectOutputAssetModalOpen}
       />

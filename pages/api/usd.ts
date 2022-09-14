@@ -7,9 +7,18 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   const {
-    body: { assetIds },
+    query: { assetIds: rawAssetIds },
   } = req
-  if (!assetIds || !Array.isArray(assetIds)) {
+  if(typeof rawAssetIds !== 'string') {
+    res.status(400).json({ error: 'Invalid assetIds' })
+    return
+  }
+  const assetIds = rawAssetIds.split(',')
+  if (
+    !assetIds ||
+    !Array.isArray(assetIds) ||
+    !(typeof assetIds[0] === 'string')
+  ) {
     res.status(400).json({ error: 'Send assetIds in array form' })
     return
   }

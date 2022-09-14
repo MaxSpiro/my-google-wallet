@@ -1,45 +1,17 @@
 import { Asset } from 'lib/entities'
-import { useActions, useAppState } from 'lib/overmind'
-
-export enum AssetType {
-  Output = 'Output',
-  Input = 'Input',
-  Send = 'Send',
-  Receive = 'Receive',
-}
+import { useStore } from 'lib/zustand'
 
 export const SelectAssetModal = ({
-  assetType,
+  setAsset,
   isOpen,
   setIsOpen,
 }: {
-  assetType: AssetType
+  setAsset: (asset: Asset) => void
   isOpen: boolean
   setIsOpen: (value: boolean) => void
 }) => {
-  const { supportedAssets } = useAppState()
-  const {
-    send: { setSendAsset },
-    receive: { setReceiveAsset },
-    swap: { setInputAsset, setOutputAsset },
-  } = useActions()
+  const supportedAssets = useStore((state) => state.supportedAssets)
 
-  const handleSelectAsset = (asset: Asset) => {
-    switch (assetType) {
-      case AssetType.Input:
-        setInputAsset(asset)
-        break
-      case AssetType.Output:
-        setOutputAsset(asset)
-        break
-      case AssetType.Send:
-        setSendAsset(asset)
-        break
-      case AssetType.Receive:
-        setReceiveAsset(asset)
-        break
-    }
-  }
   return (
     <div className={`modal text-white ${isOpen && 'modal-open'}`}>
       <div className='modal-box'>
@@ -51,7 +23,7 @@ export const SelectAssetModal = ({
                 <a
                   className='cursor-pointer'
                   onClick={() => {
-                    handleSelectAsset(asset)
+                    setAsset(asset)
                     setIsOpen(false)
                   }}
                 >

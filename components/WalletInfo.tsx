@@ -1,26 +1,25 @@
-import { Asset } from 'lib/entities'
-import { useActions, useAppState } from 'lib/overmind'
+import { Amount, Asset } from 'lib/entities'
+import { useFiat } from 'lib/hooks/useFiat'
+import { useWallet } from 'lib/hooks/useWallet'
+import { useStore } from 'lib/zustand'
 import { Address } from './Address'
 import { SidebarMode } from './Sidebar'
 
 export const WalletInfo = ({ mode }: { mode: SidebarMode }) => {
   const {
-    supportedAssets,
-    wallet: { isConnected },
-  } = useAppState()
-  const {
-    wallet: {
-      handleConnectGoogle,
-      getAddressByChain,
-      getMaxBalance,
-      refreshBalances,
-    },
-    getAssetPriceInUsd,
-  } = useActions()
+    isConnected,
+    connectGoogle,
+    getMaxBalance,
+    getAddress,
+    refreshBalances,
+  } = useWallet()
+  const supportedAssets = useStore((state) => state.supportedAssets)
+
+  const { getAssetPriceInUsd } = useFiat()
 
   if (!isConnected) {
     return (
-      <button className='btn btn-primary' onClick={handleConnectGoogle}>
+      <button className='btn btn-primary' onClick={connectGoogle}>
         Log in to view balances & addresses
       </button>
     )
@@ -31,7 +30,7 @@ export const WalletInfo = ({ mode }: { mode: SidebarMode }) => {
       <ul>
         {supportedAssets.map((asset) => {
           const balance = getMaxBalance(asset)
-          const address = getAddressByChain(asset.chain)
+          const address = getAddress(asset.chain)
           return (
             <li key={asset.symbol} className='my-2'>
               <div className='flex items-center gap-2 flex-wrap'>
@@ -50,7 +49,7 @@ export const WalletInfo = ({ mode }: { mode: SidebarMode }) => {
                       <span>
                         (
                         <span className='text-primary-content'>
-                          ${getAssetPriceInUsd({ asset, amount: balance })}
+                          ${getAssetPriceInUsd(asset, balance)}
                         </span>
                         )
                       </span>

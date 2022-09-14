@@ -1,8 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import { useState } from 'react'
 import { WalletInfo } from './WalletInfo'
-import { useAppState } from 'lib/overmind'
 import Image from 'next/image'
+import { useWallet } from 'lib/hooks/useWallet'
 
 export enum SidebarMode {
   Balances = 'balances',
@@ -10,9 +10,7 @@ export enum SidebarMode {
 }
 
 export const Sidebar = () => {
-  const {
-    wallet: { isConnected },
-  } = useAppState()
+  const { isConnected } = useWallet()
 
   const [mode, setMode] = useState<SidebarMode>(SidebarMode.Balances)
 

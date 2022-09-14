@@ -1,14 +1,9 @@
-import { useActions, useAppState } from 'lib/overmind'
+import { useWallet } from 'lib/hooks/useWallet'
 import { NextPage } from 'next'
 import { useState } from 'react'
 
 const Profile: NextPage = () => {
-  const {
-    wallet: { userInfo },
-  } = useAppState()
-  const {
-    wallet: { getPrivateKey },
-  } = useActions()
+  const { getPrivateKey } = useWallet()
   const privateKey = getPrivateKey()
   const [showPrivateKey, setShowPrivateKey] = useState(false)
   return (

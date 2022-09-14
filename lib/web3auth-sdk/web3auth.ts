@@ -47,7 +47,7 @@ export class Web3AuthClient implements IWallet {
     this.network = network
   }
 
-  async connect(chains: string[]): Promise<void> {
+  async connect(chains: string[]): Promise<IWallet> {
     this.supportedChains = chains
     let loggedIn = false
     if (this.web3auth.status === 'not_ready') {
@@ -86,6 +86,7 @@ export class Web3AuthClient implements IWallet {
     )
 
     this.isConnected = true
+    return this
   }
 
   exposePrivateKey(): string {
