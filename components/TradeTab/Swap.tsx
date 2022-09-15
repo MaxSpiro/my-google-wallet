@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { SelectAssetModal } from 'components/SelectAssetModal'
+import { SelectAssetModal } from 'components/modals/SelectAssetModal'
 import { useState } from 'react'
 import { useSwap } from 'lib/hooks/useSwap'
 import { Amount, Asset } from 'lib/entities'

@@ -12,7 +12,7 @@ export class EVMProvider implements IWalletProvider {
   private DECIMAL = 18
 
   private address: string = ''
-  private balance: Amount = Amount.fromBaseAmount(0, 8)
+  private balance: Record<string, Amount> = {}
 
   private web3: Web3
   private account: Account
@@ -27,7 +27,7 @@ export class EVMProvider implements IWalletProvider {
       switch (chain) {
         case 'BSC':
           return new Asset('BSC', 'BNB')
-        case 'MATIC':
+        case 'POLYGON':
           return Asset.MATIC()
         default:
           return Asset.ETH()
@@ -46,15 +46,38 @@ export class EVMProvider implements IWalletProvider {
     await this.updateBalance()
   }
 
-  updateBalance = async () => {
-    this.balance = Amount.fromBaseAmount(
-      await this.web3.eth.getBalance(this.address),
-      this.DECIMAL,
+  updateBalance = async (assets?: Asset[]) => {
+    if (!assets) {
+      this.balance = {
+        [this.nativeAsset.toString()]: Amount.fromBaseAmount(
+          await this.web3.eth.getBalance(this.address),
+          this.DECIMAL,
+        ),
+      }
+      console.log(this.nativeAsset.toString())
+      return
+    }
+    this.balance = {}
+    await Promise.all(
+      assets.map(async (asset) => {
+        const assetBalance = asset.eq(this.nativeAsset)
+          ? Amount.fromBaseAmount(
+              await this.web3.eth.getBalance(this.address),
+              this.DECIMAL,
+            )
+          : await this.getERC20Balance(asset)
+        this.balance[asset.toString()] = assetBalance
+      }),
     )
   }
 
   getAddress = (): string => this.account.address
-  getBalance = (): Amount => this.balance
+  getBalance = (asset?: Asset): Amount => {
+    if (!asset) {
+      return this.balance['ETH.ETH']
+    }
+    return this.balance[asset.toString()] ?? Amount.fromBaseAmount(0, 18)
+  }
 
   getERC20Balance = async (asset: Asset): Promise<Amount> => {
     const contract = new this.web3.eth.Contract(
@@ -71,34 +94,33 @@ export class EVMProvider implements IWalletProvider {
   }
 
   signAndSendTransaction = async (txParams: TxParams) => {
-    try {
-      const signedTx = await this.signTransaction(txParams)
-      if (!signedTx || !signedTx.rawTransaction) {
-        throw Error('error signing transaction')
-      }
-      const txRes = await this.web3.eth.sendSignedTransaction(
-        signedTx.rawTransaction,
-      )
-      return txRes
-    } catch (error) {
-      console.error('error', error)
+    const signedTx = await this.signTransaction(txParams)
+    if (!signedTx || !signedTx.rawTransaction) {
+      return Promise.reject('could not sign transaction')
     }
+    const txRes = await this.web3.eth.sendSignedTransaction(
+      signedTx.rawTransaction,
+    )
+    return txRes.transactionHash
   }
 
   signTransaction = async (txParams: TxParams) => {
     try {
-      const { to, gasPrice, gasLimit: gas, memo, value } = txParams
+      const { to, gasLimit, memo, value } = txParams
       const baseValue = value.baseAmount.toNumber()
+      const gasPrice = await this.web3.eth.getGasPrice()
+
+      const gas = Math.ceil(Number(gasLimit) / Number(gasPrice))
+      console.log(gas)
       const txRes = await this.account.signTransaction({
         to,
         value: baseValue,
-        gasPrice,
         gas,
         data: memo,
       })
       return txRes
-    } catch (error) {
-      console.error('error', error)
+    } catch (e) {
+      return Promise.reject('error signing transaction')
     }
   }
   verifyAddress = async (address: string): Promise<boolean> => {

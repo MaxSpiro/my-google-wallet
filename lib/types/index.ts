@@ -31,11 +31,11 @@ export interface IWallet {
 
   getAddress: (chain: string) => string
 
-  loadAllBalances: () => Promise<void>
+  loadAllBalances: (assets: Asset[]) => Promise<void>
   getBalance: (asset: Asset) => Amount
 
   signTransaction: (txParams: TxParams) => Promise<any>
-  signAndSendTransaction: (txParams: TxParams) => Promise<any>
+  signAndSendTransaction: (txParams: TxParams) => Promise<string>
 
   signMessage: (chain: string, message: string) => Promise<any>
 
@@ -44,4 +44,9 @@ export interface IWallet {
   verifyAddress: (address: string, chain: string) => Promise<boolean>
 
   exposePrivateKey: () => string
+}
+
+export interface Chain {
+  name: string
+  supportsTokens: boolean
 }

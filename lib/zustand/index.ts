@@ -3,15 +3,16 @@ import {
   fetchAssetPrices,
   fetchSingleAssetPrice,
 } from 'lib/proxies/getAssetPrices'
-import { IWallet } from 'lib/types'
+import { IWallet, Chain } from 'lib/types'
 import create from 'zustand'
 
 type State = {
   assetPricesInUsd: Record<string, string>
   fetchInitialAssetPrices: () => Promise<void>
   fetchSingleAssetPrice: (asset: Asset) => Promise<string>
-  supportedAssets: Asset[]
-  addSupportedAsset: (asset: Asset) => void
+  supportedChains: Chain[]
+  trackedAssets: Asset[]
+  addTrackedAsset: (asset: Asset) => void
   appLoading: boolean
   wallet: IWallet | null
   setWallet: (wallet: IWallet | null) => Promise<void> | void
@@ -47,7 +48,7 @@ type State = {
 const useStore = create<State>()((set, get) => ({
   assetPricesInUsd: {},
   fetchInitialAssetPrices: async () => {
-    const assetPricesInUsd = await fetchAssetPrices(get().supportedAssets)
+    const assetPricesInUsd = await fetchAssetPrices(get().trackedAssets)
     set({ assetPricesInUsd })
     set({ appLoading: false })
   },
@@ -56,17 +57,42 @@ const useStore = create<State>()((set, get) => ({
     set({ assetPricesInUsd: { ...get().assetPricesInUsd, assetPriceInUsd } })
     return assetPriceInUsd
   },
-  supportedAssets: [
+  supportedChains: [
+    {
+      name: 'ETH',
+      supportsTokens: true,
+    },
+    {
+      name: 'POLYGON',
+      supportsTokens: true,
+    },
+    {
+      name: 'BTC',
+      supportsTokens: false,
+    },
+    {
+      name: 'LTC',
+      supportsTokens: false,
+    },
+    {
+      name: 'BCH',
+      supportsTokens: false,
+    },
+    {
+      name: 'DOGE',
+      supportsTokens: false,
+    },
+  ],
+  trackedAssets: [
     Asset.ETH(),
     Asset.BTC(),
     Asset.LTC(),
     Asset.BCH(),
-    Asset.ATOM(),
     Asset.DOGE(),
     Asset.MATIC(),
   ],
-  addSupportedAsset: (asset) => {
-    set({ supportedAssets: [...get().supportedAssets, asset] })
+  addTrackedAsset: (asset) => {
+    set({ trackedAssets: [...get().trackedAssets, asset] })
   },
   appLoading: true,
   wallet: null,

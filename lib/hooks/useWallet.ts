@@ -7,14 +7,15 @@ import { useStore } from 'lib/zustand'
 export const useWallet = () => {
   const wallet = useStore((state) => state.wallet)
   const setWallet = useStore((state) => state.setWallet)
-  const supportedAssets = useStore((state) => state.supportedAssets)
+  const supportedChains = useStore((state) => state.supportedChains)
+  const trackedAssets = useStore((state) => state.trackedAssets)
 
   const connectGoogle = async () => {
     if (wallet) {
       return
     }
     const web3 = await toast.promise(
-      web3auth.connect(supportedAssets.map((a) => a.chain)),
+      web3auth.connect(supportedChains.map((chain) => chain.name)),
       {
         loading: 'Connecting...',
         success: 'Connected!',
@@ -66,7 +67,7 @@ export const useWallet = () => {
     if (!wallet) {
       return
     }
-    await toast.promise(wallet.loadAllBalances(), {
+    await toast.promise(wallet.loadAllBalances(trackedAssets), {
       loading: 'Refreshing balances...',
       success: 'Balances up to date!',
       error: 'Error refreshing balances',

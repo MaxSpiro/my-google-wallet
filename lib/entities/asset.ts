@@ -29,10 +29,6 @@ export class Asset {
     return new Asset('DOGE', 'DOGE').setDecimal(8)
   }
 
-  public static ATOM(): Asset {
-    return new Asset('GAIA', 'ATOM').setDecimal(6)
-  }
-
   public static MATIC(): Asset {
     return new Asset('POLYGON', 'MATIC').setDecimal(18)
   }
@@ -42,9 +38,6 @@ export class Asset {
   }
 
   public static getNativeAsset(chain: string): Asset {
-    if (chain === 'GAIA') {
-      return Asset.ATOM()
-    }
     if (chain === 'BSC') {
       return Asset.BSC()
     }
@@ -57,9 +50,6 @@ export class Asset {
   public static getDecimalByChain(chain: string): number {
     if (chain === 'ETH' || chain === 'MATIC') {
       return 18
-    }
-    if (chain === 'GAIA') {
-      return 6
     }
     return 8
   }

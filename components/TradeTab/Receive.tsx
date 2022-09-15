@@ -1,7 +1,7 @@
 import { Address } from 'components'
 import QRCode from 'react-qr-code'
 import Image from 'next/image'
-import { SelectAssetModal } from 'components/SelectAssetModal'
+import { SelectAssetModal } from 'components/modals/SelectAssetModal'
 import { useState } from 'react'
 import { Amount, Asset } from 'lib/entities'
 import { useWallet } from 'lib/hooks/useWallet'

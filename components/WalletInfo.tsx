@@ -2,7 +2,9 @@ import { Amount, Asset } from 'lib/entities'
 import { useFiat } from 'lib/hooks/useFiat'
 import { useWallet } from 'lib/hooks/useWallet'
 import { useStore } from 'lib/zustand'
+import { useState } from 'react'
 import { Address } from './Address'
+import { AddTokenModal } from './modals/AddTokenModal'
 import { SidebarMode } from './Sidebar'
 
 export const WalletInfo = ({ mode }: { mode: SidebarMode }) => {
@@ -13,9 +15,17 @@ export const WalletInfo = ({ mode }: { mode: SidebarMode }) => {
     getAddress,
     refreshBalances,
   } = useWallet()
-  const supportedAssets = useStore((state) => state.supportedAssets)
+  const trackedAssets = useStore((state) => state.trackedAssets)
 
   const { getAssetPriceInUsd } = useFiat()
+
+  const [, rerender] = useState(0) // hacky way to rerender on refresh balances since I don't want to keep balances in state
+  const handleRefreshBalances = async () => {
+    await refreshBalances()
+    rerender(Math.random())
+  }
+
+  const [isAddTokenModalOpen, setIsAddTokenModalOpen] = useState(false)
 
   if (!isConnected) {
     return (
@@ -28,7 +38,7 @@ export const WalletInfo = ({ mode }: { mode: SidebarMode }) => {
   return (
     <>
       <ul>
-        {supportedAssets.map((asset) => {
+        {trackedAssets.map((asset) => {
           const balance = getMaxBalance(asset)
           const address = getAddress(asset.chain)
           return (
@@ -63,9 +73,21 @@ export const WalletInfo = ({ mode }: { mode: SidebarMode }) => {
           )
         })}
       </ul>
-      <button onClick={refreshBalances} className='btn btn-primary'>
-        Refresh all balances
-      </button>
+      <div className='flex gap-2 justify-around items-center'>
+        <button
+          onClick={() => setIsAddTokenModalOpen(true)}
+          className='btn btn-primary'
+        >
+          Add token
+        </button>
+        <button onClick={handleRefreshBalances} className='btn btn-primary'>
+          Refresh all balances
+        </button>
+      </div>
+      <AddTokenModal
+        isOpen={isAddTokenModalOpen}
+        setIsOpen={setIsAddTokenModalOpen}
+      />
     </>
   )
 }

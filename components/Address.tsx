@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { getExplorerUrl } from 'lib/helpers/explorer'
+import { getAddressExplorerUrl } from 'lib/helpers/explorer'
 import toast from 'react-hot-toast'
 import Image from 'next/image'
 import { Asset } from 'lib/entities'
@@ -73,7 +73,7 @@ export const Address = ({
       </CopyToClipboard>
       <a
         className='flex justify-center items-center'
-        href={getExplorerUrl(asset, address)}
+        href={getAddressExplorerUrl(asset, address)}
         target='_blank'
         rel='noreferrer'
       >

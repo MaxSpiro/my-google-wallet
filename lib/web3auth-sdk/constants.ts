@@ -1,6 +1,6 @@
 export const Web3AuthClientId = process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID || ''
 
-export const InfuraProjectId = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID || ''
+export const InfuraApiKey = process.env.NEXT_PUBLIC_INFURA_API_KEY || ''
 
 export const sochainBaseUrl = process.env.NEXT_PUBLIC_SOCHAIN_URL || ''
 

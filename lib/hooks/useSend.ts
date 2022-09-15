@@ -30,24 +30,18 @@ export const useSend = () => {
     send.setRecipient(recipient)
   }
 
-  const handleConfirm = async () => {
+  const generateTransaction = () => {
     if (!wallet) {
       toast.error('Wallet not connected')
-      return
+      return Promise.reject()
     }
-    await toast.promise(
-      wallet.signAndSendTransaction({
-        asset: send.asset,
-        value: send.amount,
-        to: send.recipient,
-        fee: send.fee.baseAmount.toString(),
-      }),
-      {
-        loading: 'Sending...',
-        success: 'Sent!',
-        error: 'Error sending',
-      },
-    )
+    return wallet.signAndSendTransaction({
+      asset: send.asset,
+      value: send.amount,
+      to: send.recipient,
+      fee: send.fee.baseAmount.toString(),
+      gasLimit: send.fee.baseAmount.toString(),
+    })
   }
 
   useEffect(() => {
@@ -71,6 +65,6 @@ export const useSend = () => {
     setAsset,
     setAmount,
     setRecipient,
-    handleConfirm,
+    generateTransaction,
   }
 }

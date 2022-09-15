@@ -5,11 +5,11 @@ export interface IWalletProvider {
   getAddress: () => string
   getBalance: (asset?: Asset) => Amount
 
-  updateBalance: () => Promise<void>
+  updateBalance: (assets?: Asset[]) => Promise<void>
   init: () => Promise<void>
 
   signTransaction: (txParams: TxParams) => Promise<any>
-  signAndSendTransaction: (txParams: TxParams) => Promise<any>
+  signAndSendTransaction: (txParams: TxParams) => Promise<string>
 
   signMessage: (message: string) => Promise<string>
 

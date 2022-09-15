@@ -10,14 +10,14 @@ export const SelectAssetModal = ({
   isOpen: boolean
   setIsOpen: (value: boolean) => void
 }) => {
-  const supportedAssets = useStore((state) => state.supportedAssets)
+  const trackedAssets = useStore((state) => state.trackedAssets)
 
   return (
     <div className={`modal text-white ${isOpen && 'modal-open'}`}>
       <div className='modal-box'>
         <h3 className='font-bold text-lg'>Select an native asset to send</h3>
         <ul className='gap-2 flex flex-col'>
-          {supportedAssets.map((asset) => {
+          {trackedAssets.map((asset) => {
             return (
               <li key={asset.symbol}>
                 <a

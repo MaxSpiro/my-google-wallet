@@ -108,10 +108,10 @@ export class Web3AuthClient implements IWallet {
     return chainClient.getBalance(asset)
   }
 
-  async loadAllBalances() {
+  async loadAllBalances(assets: Asset[]) {
     const promises: Promise<void>[] = []
     this.providers.forEach((provider) => {
-      promises.push(provider.updateBalance())
+      promises.push(provider.updateBalance(assets.filter((asset) => asset.chain === provider.nativeAsset.chain)))
     })
     await Promise.all(promises)
   }

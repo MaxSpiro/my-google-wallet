@@ -72,6 +72,8 @@ export class BTCProvider implements IWalletProvider {
           Amount.fromAssetAmount(0.000044, this.DECIMAL).baseAmount.toNumber(),
       )
 
+      console.log(txParams)
+
       const utxoData = (
         await axios.get(
           `${sochainBaseUrl}/get_tx_unspent/${this.sochainNetwork}/${this.address}`,
@@ -133,7 +135,7 @@ export class BTCProvider implements IWalletProvider {
       const txHex = psbt.extractTransaction().toHex()
       return txHex
     } catch (e) {
-      console.error(e)
+      return Promise.reject(e)
     }
   }
   signAndSendTransaction = async (txParams: TxParams) => {
@@ -144,9 +146,10 @@ export class BTCProvider implements IWalletProvider {
           `${sochainBaseUrl}/send_tx/${this.sochainNetwork}/${txHex}`,
         )
       ).data.data
+      console.log('txid:', txid)
       return txid
-    } catch (error) {
-      console.error(error)
+    } catch (e) {
+      return Promise.reject(e)
     }
   }
   signMessage = async (message: string) => {
