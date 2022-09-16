@@ -2,10 +2,10 @@ export const Web3AuthClientId = process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID || ''
 
 export const InfuraApiKey = process.env.NEXT_PUBLIC_INFURA_API_KEY || ''
 
-export const sochainBaseUrl = process.env.NEXT_PUBLIC_SOCHAIN_URL || ''
+export const sochainBaseUrl = 'https://sochain.com/api/v2'
 
 export const haskoinMainnetUrl =
-  process.env.NEXT_PUBLIC_HASKOIN_BCH_MAINNET_URL || ''
+  'https://api.haskoin.com/bch'
 
 export const erc20MinAbi = [
   // balanceOf

@@ -2,6 +2,8 @@
 import axios from 'axios'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
+const CMC_BASEURL = 'https://pro-api.coinmarketcap.com/v2'
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -24,7 +26,7 @@ export default async function handler(
   }
   const prices: Record<string, string> = {}
   const response = await axios.get(
-    `${process.env.CMC_BASEURL}/cryptocurrency/quotes/latest?symbol=${assetIds
+    `${CMC_BASEURL}/cryptocurrency/quotes/latest?symbol=${assetIds
       .map((assetId: string) => symbolFromId(assetId))
       .join(',')}`,
     {
@@ -37,7 +39,7 @@ export default async function handler(
   )
   for (const id of assetIds) {
     prices[id] =
-      response.data.data[(symbolFromId(id))]?.[0]?.quote?.USD?.price?.toString()
+      response.data.data[symbolFromId(id)]?.[0]?.quote?.USD?.price?.toString()
   }
   res.status(200).json(JSON.stringify(prices))
 }
