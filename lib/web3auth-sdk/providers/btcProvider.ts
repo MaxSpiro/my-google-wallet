@@ -72,7 +72,6 @@ export class BTCProvider implements IWalletProvider {
           Amount.fromAssetAmount(0.000044, this.DECIMAL).baseAmount.toNumber(),
       )
 
-      console.log(txParams)
 
       const utxoData = (
         await axios.get(
@@ -146,7 +145,6 @@ export class BTCProvider implements IWalletProvider {
           `${sochainBaseUrl}/send_tx/${this.sochainNetwork}/${txHex}`,
         )
       ).data.data
-      console.log('txid:', txid)
       return txid
     } catch (e) {
       return Promise.reject(e)

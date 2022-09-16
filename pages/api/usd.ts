@@ -9,7 +9,7 @@ export default async function handler(
   const {
     query: { assetIds: rawAssetIds },
   } = req
-  if(typeof rawAssetIds !== 'string') {
+  if (typeof rawAssetIds !== 'string') {
     res.status(400).json({ error: 'Invalid assetIds' })
     return
   }
@@ -25,7 +25,7 @@ export default async function handler(
   const prices: Record<string, string> = {}
   const response = await axios.get(
     `${process.env.CMC_BASEURL}/cryptocurrency/quotes/latest?symbol=${assetIds
-      .map((assetId: string) => assetId.split('.')[1])
+      .map((assetId: string) => symbolFromId(assetId))
       .join(',')}`,
     {
       headers: {
@@ -37,7 +37,11 @@ export default async function handler(
   )
   for (const id of assetIds) {
     prices[id] =
-      response.data.data[id.split('.')[1]]?.[0]?.quote?.USD?.price?.toString()
+      response.data.data[(symbolFromId(id))]?.[0]?.quote?.USD?.price?.toString()
   }
   res.status(200).json(JSON.stringify(prices))
+}
+
+function symbolFromId(id: string) {
+  return id.split('-')[0].split('.')[1]
 }

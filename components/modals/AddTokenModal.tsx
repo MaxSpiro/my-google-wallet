@@ -19,13 +19,12 @@ export const AddTokenModal = ({
       store.addTrackedAsset,
     ],
   )
-  const { refreshBalances } = useWallet()
   const [network, setNetwork] = useState('initial')
   const [tokenSymbol, setTokenSymbol] = useState('')
   const [tokenAddress, setTokenAddress] = useState('')
   const isFormComplete = tokenSymbol && tokenAddress && network !== 'initial'
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     setIsOpen(false)
     const assetId = `${network}.${tokenSymbol}-${tokenAddress}`
     if (trackedAssets.some((a) => a.toString() === assetId)) {
@@ -34,12 +33,14 @@ export const AddTokenModal = ({
     }
     const asset = Asset.fromAssetId(assetId)
     if (asset) {
-      addTrackedAsset(asset)
-      toast.success('Token added!')
+      toast.promise(addTrackedAsset(asset), {
+        loading: 'Fetching token info...',
+        success: () => 'Token added!',
+        error: (e) => `Error adding token: ${e.toString()}`,
+      })
     } else {
       toast.error('Could not add token')
     }
-    refreshBalances()
     setNetwork('initial')
     setTokenSymbol('')
     setTokenAddress('')

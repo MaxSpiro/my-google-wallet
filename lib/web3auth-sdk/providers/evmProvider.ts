@@ -54,7 +54,6 @@ export class EVMProvider implements IWalletProvider {
           this.DECIMAL,
         ),
       }
-      console.log(this.nativeAsset.toString())
       return
     }
     this.balance = {}
@@ -111,7 +110,6 @@ export class EVMProvider implements IWalletProvider {
       const gasPrice = await this.web3.eth.getGasPrice()
 
       const gas = Math.ceil(Number(gasLimit) / Number(gasPrice))
-      console.log(gas)
       const txRes = await this.account.signTransaction({
         to,
         value: baseValue,

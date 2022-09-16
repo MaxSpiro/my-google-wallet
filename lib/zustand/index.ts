@@ -12,7 +12,8 @@ type State = {
   fetchSingleAssetPrice: (asset: Asset) => Promise<string>
   supportedChains: Chain[]
   trackedAssets: Asset[]
-  addTrackedAsset: (asset: Asset) => void
+  addTrackedAsset: (asset: Asset) => Promise<void>
+  removeTrackedAsset: (asset: Asset) => Promise<void>
   appLoading: boolean
   wallet: IWallet | null
   setWallet: (wallet: IWallet | null) => Promise<void> | void
@@ -57,6 +58,46 @@ const useStore = create<State>()((set, get) => ({
     set({ assetPricesInUsd: { ...get().assetPricesInUsd, assetPriceInUsd } })
     return assetPriceInUsd
   },
+  trackedAssets: [
+    Asset.ETH(),
+    Asset.BTC(),
+    Asset.LTC(),
+    Asset.BCH(),
+    Asset.DOGE(),
+    Asset.MATIC(),
+    Asset.BSC(),
+  ],
+  addTrackedAsset: async (asset) => {
+    const newTrackedAssets = [...get().trackedAssets, asset]
+    const assetPrice = await get().fetchSingleAssetPrice(asset)
+    set({
+      assetPricesInUsd: {
+        ...get().assetPricesInUsd,
+        [asset.toString()]: assetPrice,
+      },
+    })
+    await get().wallet?.loadAllBalances(newTrackedAssets)
+    set({ trackedAssets: newTrackedAssets })
+  },
+  removeTrackedAsset: async (asset) => {
+    if (!asset.address) {
+      throw Error('Cannot remove core asset')
+    }
+    const newTrackedAssets = get().trackedAssets.filter(
+      (a) => a.toString() !== asset.toString(),
+    )
+    set({
+      assetPricesInUsd: Object.entries(get().assetPricesInUsd)
+        .filter((entry) => entry[0] !== asset.toString())
+        .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {}),
+    })
+    await get().wallet?.loadAllBalances(newTrackedAssets)
+    set({ trackedAssets: newTrackedAssets })
+  },
+  appLoading: true,
+  wallet: null,
+  setWallet: (wallet: IWallet | null) => set({ wallet }),
+  userInfo: null,
   supportedChains: [
     {
       name: 'ETH',
@@ -64,6 +105,10 @@ const useStore = create<State>()((set, get) => ({
     },
     {
       name: 'POLYGON',
+      supportsTokens: true,
+    },
+    {
+      name: 'BSC',
       supportsTokens: true,
     },
     {
@@ -83,21 +128,6 @@ const useStore = create<State>()((set, get) => ({
       supportsTokens: false,
     },
   ],
-  trackedAssets: [
-    Asset.ETH(),
-    Asset.BTC(),
-    Asset.LTC(),
-    Asset.BCH(),
-    Asset.DOGE(),
-    Asset.MATIC(),
-  ],
-  addTrackedAsset: (asset) => {
-    set({ trackedAssets: [...get().trackedAssets, asset] })
-  },
-  appLoading: true,
-  wallet: null,
-  setWallet: (wallet: IWallet | null) => set({ wallet }),
-  userInfo: null,
   swap: {
     inputAsset: Asset.getNativeAsset('BTC'),
     outputAsset: Asset.getNativeAsset('ETH'),

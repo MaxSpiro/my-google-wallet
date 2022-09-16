@@ -5,6 +5,7 @@ import { useStore } from 'lib/zustand'
 import { useState } from 'react'
 import { Address } from './Address'
 import { AddTokenModal } from './modals/AddTokenModal'
+import { RemoveTokenModal } from './modals/RemoveTokenModal'
 import { SidebarMode } from './Sidebar'
 
 export const WalletInfo = ({ mode }: { mode: SidebarMode }) => {
@@ -16,6 +17,18 @@ export const WalletInfo = ({ mode }: { mode: SidebarMode }) => {
     refreshBalances,
   } = useWallet()
   const trackedAssets = useStore((state) => state.trackedAssets)
+  const assetToBalanceAddress: Record<
+    string,
+    {
+      balance: Amount
+      address: string
+    }
+  > = {}
+  trackedAssets.forEach((asset) => {
+    const address = getAddress(asset.chain)
+    const balance = getMaxBalance(asset)
+    assetToBalanceAddress[asset.toString()] = { balance, address }
+  })
 
   const { getAssetPriceInUsd } = useFiat()
 
@@ -26,6 +39,7 @@ export const WalletInfo = ({ mode }: { mode: SidebarMode }) => {
   }
 
   const [isAddTokenModalOpen, setIsAddTokenModalOpen] = useState(false)
+  const [isRemoveTokenModalOpen, setIsRemoveTokenModalOpen] = useState(false)
 
   if (!isConnected) {
     return (
@@ -39,8 +53,8 @@ export const WalletInfo = ({ mode }: { mode: SidebarMode }) => {
     <>
       <ul>
         {trackedAssets.map((asset) => {
-          const balance = getMaxBalance(asset)
-          const address = getAddress(asset.chain)
+          const balance = assetToBalanceAddress[asset.toString()].balance
+          const address = assetToBalanceAddress[asset.toString()].address
           return (
             <li key={asset.symbol} className='my-2'>
               <div className='flex items-center gap-2 flex-wrap'>
@@ -73,20 +87,30 @@ export const WalletInfo = ({ mode }: { mode: SidebarMode }) => {
           )
         })}
       </ul>
-      <div className='flex gap-2 justify-around items-center'>
+      <button onClick={handleRefreshBalances} className='btn btn-primary'>
+        Refresh all balances
+      </button>
+      <div className='flex gap-8 justify-around items-center'>
         <button
           onClick={() => setIsAddTokenModalOpen(true)}
-          className='btn btn-primary'
+          className='btn btn-success w-5/12'
         >
           Add token
         </button>
-        <button onClick={handleRefreshBalances} className='btn btn-primary'>
-          Refresh all balances
+        <button
+          onClick={() => setIsRemoveTokenModalOpen(true)}
+          className='btn btn-error w-5/12'
+        >
+          Remove token
         </button>
       </div>
       <AddTokenModal
         isOpen={isAddTokenModalOpen}
         setIsOpen={setIsAddTokenModalOpen}
+      />
+      <RemoveTokenModal
+        isOpen={isRemoveTokenModalOpen}
+        setIsOpen={setIsRemoveTokenModalOpen}
       />
     </>
   )
