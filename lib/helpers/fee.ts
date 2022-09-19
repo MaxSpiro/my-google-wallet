@@ -18,9 +18,9 @@ export const getFeeEstimateByChain = async (chain: string): Promise<Amount> => {
     if (chain === 'ETH' || chain === 'POLYGON') {
       try {
         const res = await axios.get(
-          `${
-            BLOCKNATIVE_BASEURL
-          }/gasprices/blockprices?chainid=${chain === 'ETH' ? 1 : 137}`,
+          `${BLOCKNATIVE_BASEURL}/gasprices/blockprices?chainid=${
+            chain === 'ETH' ? 1 : 137
+          }`,
           {
             headers: {
               Authorization: process.env.NEXT_PUBLIC_BLOCKNATIVE_APIKEY ?? '',

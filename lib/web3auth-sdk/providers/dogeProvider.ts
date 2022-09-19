@@ -71,7 +71,8 @@ export class DOGEProvider implements IWalletProvider {
       `${sochainBaseUrl}/get_address_balance/${this.sochainNetwork}/${this.address}`,
     )
     this.balance = Amount.fromAssetAmount(
-      Number(res.data.data.confirmed_balance),
+      Number(res.data.data.confirmed_balance) +
+        Number(res.data.data.unconfirmed_balance),
       this.DECIMAL,
     )
   }
@@ -88,7 +89,7 @@ export class DOGEProvider implements IWalletProvider {
         txParams.fee ??
           Amount.fromAssetAmount(0.92, this.DECIMAL).baseAmount.toNumber(),
       )
-
+      console.log(to, memo, value, txParams.fee)
       const utxoData = (
         await axios.get(
           `${sochainBaseUrl}/get_tx_unspent/${this.sochainNetwork}/${this.address}`,

@@ -51,7 +51,7 @@ export const PreviewTransactionModal = ({
     )
   }
 
-  const isTransactionValid = endingBalance.gt(0)
+  const isTransactionValid = endingBalance.gte(0)
   return (
     <div className={`modal text-white ${isOpen && 'modal-open'}`}>
       <div className='modal-box relative'>

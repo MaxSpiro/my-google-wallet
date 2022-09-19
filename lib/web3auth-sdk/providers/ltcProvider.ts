@@ -72,7 +72,8 @@ export class LTCProvider implements IWalletProvider {
       `${sochainBaseUrl}/get_address_balance/${this.sochainNetwork}/${this.address}`,
     )
     this.balance = Amount.fromAssetAmount(
-      Number(res.data.data.confirmed_balance),
+      Number(res.data.data.confirmed_balance) +
+        Number(res.data.data.unconfirmed_balance),
       this.DECIMAL,
     )
   }
